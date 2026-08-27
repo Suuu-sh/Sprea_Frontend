@@ -1,0 +1,7 @@
+export type Opportunity={id:number;name:string;category:string;source:string;buyer:string;imageUrl:string;purchasePrice:number;buybackPrice:number;basePointRate:number;adjustedPointRate:number;pointValue:number;effectiveCost:number;profit:number;profitRate:number;updatedAt:string};
+export type UserSettings={userId:string;pointAdjustment:number;minimumProfit:number;minimumProfitRate:number};
+const API=process.env.NEXT_PUBLIC_API_URL??"http://localhost:8080";
+export async function listOpportunities(adjustment:number){const r=await fetch(`${API}/api/opportunities?pointAdjustment=${adjustment}`,{cache:"no-store"});if(!r.ok)throw new Error("商品を取得できませんでした");return r.json() as Promise<Opportunity[]>}
+export async function getOpportunity(id:string,adjustment:number){const r=await fetch(`${API}/api/opportunities/${id}?pointAdjustment=${adjustment}`,{cache:"no-store"});if(!r.ok)throw new Error("商品を取得できませんでした");return r.json() as Promise<Opportunity>}
+export async function getSettings(){const r=await fetch(`${API}/api/settings`,{headers:{"X-User-ID":"local-user"},cache:"no-store"});if(!r.ok)throw new Error("設定を取得できませんでした");return r.json() as Promise<UserSettings>}
+export async function saveSettings(pointAdjustment:number){const r=await fetch(`${API}/api/settings`,{method:"PUT",headers:{"Content-Type":"application/json","X-User-ID":"local-user"},body:JSON.stringify({pointAdjustment,minimumProfit:1000,minimumProfitRate:3})});if(!r.ok)throw new Error("設定を保存できませんでした");return r.json() as Promise<UserSettings>}
