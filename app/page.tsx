@@ -1,8 +1,10 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
-import {PackageSearch,RefreshCw,Search} from "lucide-react";
+import {RefreshCw,Search} from "lucide-react";
 import {getResearchDashboard,ResearchDashboard} from "@/lib/api";
 import {AppShell} from "@/components/app-shell";
+import {PageHeader,StatCard,StatGrid} from "@/components/ui";
+import {OpportunityList} from "@/components/pages/opportunity-list";
 const yen=(n:number)=>new Intl.NumberFormat("ja-JP",{style:"currency",currency:"JPY",maximumFractionDigits:0}).format(n);
 const percent=(n:number)=>`${n.toFixed(1)}%`;
 export default function Home(){
@@ -11,7 +13,7 @@ export default function Home(){
  useEffect(()=>{getResearchDashboard().then(setData).catch(e=>setError(e instanceof Error?e.message:"読み込みに失敗しました")).finally(()=>setLoading(false))},[]);const decisions=useMemo(()=>new Map((data?.decisions??[]).map(x=>[x.canonicalKey,x])),[data]);
  const shown=useMemo(()=>(data?.opportunities??[]).filter(x=>(x.title+x.canonicalKey+x.purchaseSource+x.buybackSource).toLowerCase().includes(query.toLowerCase())),[data,query]);
  const total=shown.reduce((s,x)=>s+x.marketProfit,0),portfolio=data?.portfolio??{initialCapital:300000,lockedCapital:0,availableCash:300000,openTrades:0};
- return <AppShell capital={portfolio.initialCapital}><header className="page-head"><div><h1>案件リサーチ</h1><p>ローカルのモック市場で、検出・判定・資金配分の一連の流れを確認します。</p></div><div className="last-update"><span className="env-badge">LOCAL MOCK</span><button aria-label="更新" onClick={load}><RefreshCw size={16}/></button></div></header>
- <section className="summary-strip" id="portfolio"><div><span>監視商品</span><strong>{shown.length}<small>件</small></strong></div><div><span>利用可能資金</span><strong>{yen(portfolio.availableCash)}</strong></div><div><span>拘束中</span><strong>{yen(portfolio.lockedCapital)}</strong></div><div><span>48h Precision</span><strong>{percent((data?.metrics48h.precision??0)*100)}</strong></div><div><span>検出利益合計</span><strong className={total>=0?"positive":""}>{yen(total)}</strong></div></section>
+ return <AppShell capital={portfolio.initialCapital}><PageHeader title="案件リサーチ" description="ローカルのモック市場で、検出・判定・資金配分の一連の流れを確認します。" badge="LOCAL MOCK" actions={<button className="tool-button" aria-label="更新" onClick={load}><RefreshCw size={16}/></button>}/>
+ <StatGrid columns={5}><StatCard label="監視商品" value={`${shown.length}件`}/><StatCard label="利用可能資金" value={yen(portfolio.availableCash)}/><StatCard label="拘束中" value={yen(portfolio.lockedCapital)}/><StatCard label="48h Precision" value={percent((data?.metrics48h.precision??0)*100)}/><StatCard label="検出利益合計" value={yen(total)} tone={total>=0?"positive":"negative"}/></StatGrid>
  <section className="filters"><label className="search-field"><Search/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="商品名・JAN・型番・取得元で検索"/></label><span className="filter-spacer"/></section>
- <section className="data-table"><div className="data-head"><span>#</span><span>商品</span><span>仕入価格</span><span>最高買取</span><span>店舗数</span><span>実質利益</span><span>利益率</span><span>Sprea Score</span><span>判定</span><span></span></div>{loading&&<div className="table-message">ローカルデータを読み込んでいます</div>}{error&&<div className="table-message">{error}</div>}{!loading&&!error&&shown.map((x,i)=>{const d=decisions.get(x.canonicalKey);return <div className="data-row" key={x.canonicalKey}><span className="rank">{i+1}</span><div className="product-cell"><span><b><a href={`/products/${encodeURIComponent(x.canonicalKey)}`}>{x.title}</a></b><small>{x.canonicalKey}<br/>{x.purchaseSource} → {x.buybackSource}</small></span></div><span className="numeric">{yen(x.purchasePrice+x.purchaseShipping)}</span><span className="numeric">{yen(x.buybackPrice)}</span><span className="numeric">{x.buybackStoreCount}</span><strong className={x.marketProfit>=0?"profit":""}>{yen(x.marketProfit)}</strong><strong>{percent(x.profitRate)}</strong><strong>{x.spreaScore}</strong><span className="buyer"><b>{d?.decision.toUpperCase()??"未判定"}</b><small>{d?.reason??""}</small></span><span/></div>})}{!loading&&!error&&!shown.length&&<div className="table-message"><PackageSearch/>該当商品がありません</div>}</section><footer className="table-footer"><span>{shown.length}件を表示</span></footer></AppShell>}
+ <OpportunityList items={shown} decisions={decisions} loading={loading} error={error}/><footer className="table-footer"><span>{shown.length}件を表示</span></footer></AppShell>}
