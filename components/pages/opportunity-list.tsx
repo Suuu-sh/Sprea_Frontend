@@ -13,7 +13,7 @@ export function OpportunityList({ items, decisions, loading, error }: { items: R
       const decision = decisions.get(item.canonicalKey);
       return <div className="data-row" key={item.canonicalKey}>
         <span className="rank">{index + 1}</span>
-        <div className="product-cell"><span><b><Link href={`/products/${encodeURIComponent(item.canonicalKey)}`}>{item.title}</Link></b><small>{item.canonicalKey}<br />{item.purchaseSource} → {item.buybackSource}</small></span></div>
+        <div className="product-cell"><span><b><Link href={`/products/?key=${encodeURIComponent(item.canonicalKey)}`}>{item.title}</Link></b><small>{item.canonicalKey}<br />{item.purchaseSource} → {item.buybackSource}</small></span></div>
         <span className="numeric">{yen(item.purchasePrice + item.purchaseShipping)}</span>
         <span className="numeric">{yen(item.buybackPrice)}</span>
         <span className="numeric">{item.buybackStoreCount}</span>
