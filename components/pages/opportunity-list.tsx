@@ -11,7 +11,7 @@ export function OpportunityList({ items, decisions, loading, error }: { items: R
     {error && <div className="table-message">{error}</div>}
     {!loading && !error && items.map((item, index) => {
       const decision = decisions.get(item.canonicalKey);
-      return <div className="data-row" key={item.canonicalKey}>
+      return <div className="data-row" key={`${item.canonicalKey}-${item.detectedAt}-${index}`}>
         <span className="rank">{index + 1}</span>
         <div className="product-cell"><span><b><Link href={`/products/?key=${encodeURIComponent(item.canonicalKey)}`}>{item.title}</Link></b><small>{item.canonicalKey}<br />{item.purchaseSource} → {item.buybackSource}</small></span></div>
         <span className="numeric">{yen(item.purchasePrice + item.purchaseShipping)}</span>
