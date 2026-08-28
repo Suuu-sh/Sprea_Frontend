@@ -1,33 +1,43 @@
-export type Opportunity={id:number;name:string;category:string;source:string;buyer:string;imageUrl:string;purchasePrice:number;buybackPrice:number;basePointRate:number;adjustedPointRate:number;pointValue:number;effectiveCost:number;profit:number;profitRate:number;updatedAt:string};
-export type UserSettings={userId:string;pointAdjustment:number;minimumProfit:number;minimumProfitRate:number};
-const API=process.env.NEXT_PUBLIC_API_URL??"http://localhost:8080";
-export async function listOpportunities(adjustment:number){const r=await fetch(`${API}/api/opportunities?pointAdjustment=${adjustment}`,{cache:"no-store"});if(!r.ok)throw new Error("商品を取得できませんでした");const data=await r.json();return Array.isArray(data)?data:[] as Opportunity[]}
-export async function getOpportunity(id:string,adjustment:number){const r=await fetch(`${API}/api/opportunities/${id}?pointAdjustment=${adjustment}`,{cache:"no-store"});if(!r.ok)throw new Error("商品を取得できませんでした");return r.json() as Promise<Opportunity>}
-export async function getSettings(){const r=await fetch(`${API}/api/settings`,{headers:{"X-User-ID":"local-user"},cache:"no-store"});if(!r.ok)throw new Error("設定を取得できませんでした");return r.json() as Promise<UserSettings>}
-export async function saveSettings(pointAdjustment:number){const r=await fetch(`${API}/api/settings`,{method:"PUT",headers:{"Content-Type":"application/json","X-User-ID":"local-user"},body:JSON.stringify({pointAdjustment,minimumProfit:1000,minimumProfitRate:3})});if(!r.ok)throw new Error("設定を保存できませんでした");return r.json() as Promise<UserSettings>}
+export type ResearchOpportunity = { canonicalKey: string; title: string; purchaseSource: string; buybackSource: string; purchasePrice: number; purchaseShipping: number; buybackPrice: number; marketProfit: number; profitRate: number; buybackStoreCount: number; secondBuybackPrice: number; topTwoSpreadRate: number; return30Days: number; spreaScore: number; detectedAt: string };
+export type ResearchDecision = { id: number; canonicalKey: string; decision: "buy" | "skip"; reason: string; strategy: string; entryProfit: number; spreaScore: number; decidedAt: string };
+export type ResearchDashboard = { portfolio: { initialCapital: number; lockedCapital: number; availableCash: number; openTrades: number }; opportunities: ResearchOpportunity[]; decisions: ResearchDecision[]; metrics48h: { evaluated: number; buyCount: number; precision: number; recall: number; missedOpportunities: number; averageProfit: number; maximumLoss: number } };
+export type Evaluation = { decisionId: number; horizonHours: number; buybackPrice: number; profit: number; targetMet: boolean; outcome: "buy_correct" | "buy_failed" | "skip_correct" | "missed_opportunity"; evaluatedAt: string };
+export type ProductHistoryPoint = { source: string; side: "purchase" | "buyback"; price: number; stock: boolean; capturedAt: string; confidence: number; matchReason: string };
+export type ProductDetail = { canonicalKey: string; title: string; jan: string; model: string; capacity: string; color: string; history: ProductHistoryPoint[]; decisions: ResearchDecision[]; evaluations: Evaluation[] };
+export type PaperTrade = { id: number; canonicalKey: string; title: string; purchaseSource: string; buybackSource: string; purchasePrice: number; lockedCapital: number; entryBuybackPrice: number; entryProfit: number; openedAt: string; closedAt?: string; status: string };
+export type ResearchSettings = { initialCapital: number; minimumProfit: number; minimumConfidence: number; saleShipping: number; fees: number; evaluationHours: number[] };
+export type EvaluationSchedule = { decisionId: number; canonicalKey: string; title: string; horizonHours: number; dueAt: string; status: string; outcome?: string; profit?: number };
+export type EvaluatorRun = { id: number; trigger: string; status: string; evaluatedCount: number; message: string; startedAt: string; finishedAt: string };
+export type CollectorRun = { id: number; runId: string; source: string; status: string; itemCount: number; message: string; startedAt: string; finishedAt: string };
+export type CollectorStatus = { lastRun: CollectorRun | null; runs: CollectorRun[] };
 
-export type ResearchOpportunity={canonicalKey:string;title:string;purchaseSource:string;buybackSource:string;purchasePrice:number;purchaseShipping:number;buybackPrice:number;marketProfit:number;profitRate:number;buybackStoreCount:number;secondBuybackPrice:number;topTwoSpreadRate:number;return30Days:number;spreaScore:number;detectedAt:string};
-export type ResearchDecision={id:number;canonicalKey:string;decision:"buy"|"skip";reason:string;strategy:string;entryProfit:number;spreaScore:number;decidedAt:string};
-export type ResearchDashboard={portfolio:{initialCapital:number;lockedCapital:number;availableCash:number;openTrades:number};opportunities:ResearchOpportunity[];decisions:ResearchDecision[];metrics48h:{evaluated:number;buyCount:number;precision:number;recall:number;missedOpportunities:number;averageProfit:number;maximumLoss:number}};
-export async function getResearchDashboard(){const r=await fetch(`${API}/api/research/dashboard`,{cache:"no-store"});if(!r.ok)throw new Error("Researchデータを取得できませんでした");return r.json() as Promise<ResearchDashboard>}
-export type Evaluation={decisionId:number;horizonHours:number;buybackPrice:number;profit:number;targetMet:boolean;outcome:"buy_correct"|"buy_failed"|"skip_correct"|"missed_opportunity";evaluatedAt:string};
-export type MockMarketStatus={currentAt:string;elapsedHours:number;nextDueAt?:string;evaluations:Evaluation[];scenario:string;autoAdvance:boolean};
-export async function getMockMarket(){const r=await fetch(`${API}/api/research/mock-market`,{cache:"no-store"});if(!r.ok)throw new Error("モック市場を取得できませんでした");return r.json() as Promise<MockMarketStatus>}
-export async function advanceMockMarket(hours:number){const r=await fetch(`${API}/api/research/mock-market/advance`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({hours})});if(!r.ok)throw new Error("仮想時刻を進められませんでした");return r.json() as Promise<MockMarketStatus>}
-export async function configureMockMarket(scenario:string,autoAdvance:boolean){const r=await fetch(`${API}/api/research/mock-market`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({scenario,autoAdvance})});if(!r.ok)throw new Error("モック市場を設定できませんでした");return r.json() as Promise<MockMarketStatus>}
-export async function resetMockMarket(){const r=await fetch(`${API}/api/research/mock-market/reset`,{method:"POST"});if(!r.ok)throw new Error("モック市場をリセットできませんでした");return r.json() as Promise<MockMarketStatus>}
-export type ProductHistoryPoint={source:string;side:"purchase"|"buyback";price:number;stock:boolean;capturedAt:string;confidence:number;matchReason:string};
-export type ProductDetail={canonicalKey:string;title:string;jan:string;model:string;capacity:string;color:string;history:ProductHistoryPoint[];decisions:ResearchDecision[];evaluations:Evaluation[]};
-export type PaperTrade={id:number;canonicalKey:string;title:string;purchaseSource:string;buybackSource:string;purchasePrice:number;lockedCapital:number;entryBuybackPrice:number;entryProfit:number;openedAt:string;closedAt?:string;status:string};
-export type ResearchSettings={initialCapital:number;minimumProfit:number;minimumConfidence:number;saleShipping:number;fees:number;evaluationHours:number[]};
-export type EvaluationSchedule={decisionId:number;canonicalKey:string;title:string;horizonHours:number;dueAt:string;status:string;outcome?:string;profit?:number};
-export type EvaluatorRun={id:number;trigger:string;status:string;evaluatedCount:number;message:string;startedAt:string;finishedAt:string};
-export async function getProductDetail(key:string){const r=await fetch(`${API}/api/research/products/${encodeURIComponent(key)}`,{cache:"no-store"});if(!r.ok)throw new Error("商品詳細を取得できませんでした");return r.json() as Promise<ProductDetail>}
-export async function listPaperTrades(){const r=await fetch(`${API}/api/research/paper-trades`,{cache:"no-store"});if(!r.ok)throw new Error("仮想取引を取得できませんでした");return r.json() as Promise<PaperTrade[]>}
-export async function closePaperTrade(id:number){const r=await fetch(`${API}/api/research/paper-trades/${id}/close`,{method:"POST"});if(!r.ok)throw new Error("取引を終了できませんでした");return r.json() as Promise<PaperTrade>}
-export async function getResearchSettings(){const r=await fetch(`${API}/api/research/settings`,{cache:"no-store"});if(!r.ok)throw new Error("設定を取得できませんでした");return r.json() as Promise<ResearchSettings>}
-export async function saveResearchSettingsData(x:ResearchSettings){const r=await fetch(`${API}/api/research/settings`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(x)});if(!r.ok)throw new Error("設定を保存できませんでした");return r.json() as Promise<ResearchSettings>}
-export async function getEvaluatorStatus(){const r=await fetch(`${API}/api/research/evaluator`,{cache:"no-store"});if(!r.ok)throw new Error("Evaluator状態を取得できませんでした");return r.json() as Promise<{schedules:EvaluationSchedule[];runs:EvaluatorRun[]}>}
-export async function runEvaluator(){const r=await fetch(`${API}/api/research/evaluator/run`,{method:"POST"});if(!r.ok)throw new Error("Evaluatorを実行できませんでした");return r.json() as Promise<EvaluatorRun>}
-export type CollectorRun={id:number;runId:string;source:string;status:string;itemCount:number;message:string;startedAt:string;finishedAt:string};
-export async function getCollectorStatus(){const r=await fetch(`${API}/api/collector/status?limit=20`,{cache:"no-store"});if(!r.ok)throw new Error("Collector状態を取得できませんでした");return r.json() as Promise<{lastRun:CollectorRun|null;runs:CollectorRun[]}>}
+const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8787").replace(/\/$/, "");
+export class ApiError extends Error { constructor(message: string, public readonly status?: number) { super(message); this.name = "ApiError"; } }
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12_000);
+  try {
+    const response = await fetch(`${API}${path}`, { cache: "no-store", ...init, signal: controller.signal });
+    if (!response.ok) {
+      let detail = "";
+      try { detail = String((await response.json() as { error?: string }).error ?? ""); } catch { /* non-JSON response */ }
+      throw new ApiError(detail || `APIがエラーを返しました（${response.status}）`, response.status);
+    }
+    return await response.json() as T;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof DOMException && error.name === "AbortError") throw new ApiError("APIの応答がタイムアウトしました");
+    throw new ApiError("APIに接続できませんでした。接続先と起動状態を確認してください。");
+  } finally { clearTimeout(timeout); }
+}
+const json = (method: "POST" | "PUT", body?: unknown): RequestInit => ({ method, headers: body === undefined ? undefined : { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+export const getResearchDashboard = () => request<ResearchDashboard>("/api/research/dashboard");
+export const getProductDetail = (key: string) => request<ProductDetail>(`/api/research/products/${encodeURIComponent(key)}`);
+export const listPaperTrades = () => request<PaperTrade[]>("/api/research/paper-trades");
+export const closePaperTrade = (id: number) => request<PaperTrade>(`/api/research/paper-trades/${id}/close`, json("POST"));
+export const getResearchSettings = () => request<ResearchSettings>("/api/research/settings");
+export const saveResearchSettingsData = (settings: ResearchSettings) => request<ResearchSettings>("/api/research/settings", json("PUT", settings));
+export const getEvaluatorStatus = () => request<{ schedules: EvaluationSchedule[]; runs: EvaluatorRun[] }>("/api/research/evaluator");
+export const runEvaluator = () => request<EvaluatorRun>("/api/research/evaluator/run", json("POST"));
+export const getCollectorStatus = () => request<CollectorStatus>("/api/collector/status?limit=20");
