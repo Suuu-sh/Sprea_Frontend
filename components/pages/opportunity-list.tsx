@@ -6,8 +6,8 @@ const yen = (value: number) => new Intl.NumberFormat("ja-JP", { style: "currency
 
 export function OpportunityList({ items, decisions, loading, error }: { items: ResearchOpportunity[]; decisions: Map<string, ResearchDecision>; loading: boolean; error: string }) {
   return <section className="data-table" aria-label="検出した利益案件">
-    <div className="data-head"><span>#</span><span>商品</span><span>仕入価格</span><span>最高買取</span><span>店舗数</span><span>実質利益</span><span>利益率</span><span>Sprea Score</span><span>判定</span><span /></div>
-    {loading && <div className="table-message">ローカルデータを読み込んでいます</div>}
+    <div className="data-head"><span>#</span><span>商品</span><span>仕入価格</span><span>最高買取</span><span>店舗数</span><span>実質利益</span><span>利益率</span><span>Sprea Score</span><span>判定</span></div>
+    {loading && <div className="table-message">データを読み込んでいます</div>}
     {error && <div className="table-message">{error}</div>}
     {!loading && !error && items.map((item, index) => {
       const decision = decisions.get(item.canonicalKey);
@@ -19,7 +19,7 @@ export function OpportunityList({ items, decisions, loading, error }: { items: R
         <span className="numeric">{item.buybackStoreCount}</span>
         <strong className={item.marketProfit >= 0 ? "profit" : ""}>{yen(item.marketProfit)}</strong>
         <strong>{item.profitRate.toFixed(1)}%</strong><strong>{item.spreaScore}</strong>
-        <span className="buyer"><b>{decision?.decision.toUpperCase() ?? "未判定"}</b><small>{decision?.reason ?? ""}</small></span><span />
+        <span className="buyer"><b>{decision?.decision.toUpperCase() ?? "未判定"}</b><small>{decision?.reason ?? ""}</small></span>
       </div>;
     })}
     {!loading && !error && !items.length && <div className="table-message"><PackageSearch />該当商品がありません</div>}
