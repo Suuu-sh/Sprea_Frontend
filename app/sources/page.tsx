@@ -1,3 +1,3 @@
-import {AppShell} from "@/components/app-shell";import {SourceList} from "@/components/pages/source-list";
+import {AppShell} from "@/components/app-shell";import {dataLabel,environmentBadge} from "@/lib/environment";import {SourceList} from "@/components/pages/source-list";
 const sources=[{name:"Yahoo!ショッピング",side:"販売",method:"公式API",status:"接続準備中",kind:"ready",note:"公式API以外の取得は行いません"},{name:"楽天市場",side:"販売",method:"公式API",status:"資格情報待ち",kind:"pending",note:"公式APIの利用条件を満たした場合のみ有効化"},{name:"Amazon.co.jp",side:"販売",method:"Creators API",status:"未接続",kind:"pending",note:"Webページのスクレイピングは禁止"},{name:"Apple.com",side:"販売",method:"自動取得なし",status:"使用禁止",kind:"blocked",note:"規約に基づきスクレイピングしません"},{name:"買取店",side:"買取",method:"承認済みAPI / 手動取込",status:"接続前",kind:"pending",note:"利用規約を確認できたデータだけを扱います"}];
-export default function Sources(){return <AppShell title="データ取得元" description="本番では承認済みの実データ取得元だけを有効化します。" badge="REAL DATA ONLY"><SourceList sources={sources}/></AppShell>}
+export default function Sources(){return <AppShell title="データ取得元" description={`${dataLabel}の取得元と稼働状況を表示します。`} badge={environmentBadge}><SourceList sources={sources}/></AppShell>}

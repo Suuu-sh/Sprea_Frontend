@@ -4,13 +4,14 @@
 
 ## ローカル起動
 
+`.env` は本番の既定値、Git管理対象外の `.env.local` はローカル専用の上書き値です。
+ローカルでは `LOCAL MOCK DATA` と表示され、`http://localhost:8787` のMock APIへ接続します。
+
 ```bash
-cp .env.example .env.local
+cp .env.example .env.local # 未作成の場合のみ
 npm install
 npm run dev
 ```
-
-Backendは既定で `http://localhost:8080` を利用します。
 
 ## 確認
 

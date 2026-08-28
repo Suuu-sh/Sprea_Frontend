@@ -13,5 +13,6 @@
 - Price, profit, rate, score, and decision columns align consistently.
 - The table fits the available desktop width without horizontal overflow.
 - Local mock data renders two complete rows without console-visible layout failures.
+- Local `.env.local` renders `LOCAL MOCK DATA`; the production build artifact renders `PRODUCTION DATA`.
 
 final result: passed
