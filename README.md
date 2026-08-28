@@ -12,6 +12,8 @@ Sprea Researchの個人利用向けWebフロントエンドです。案件、商
 
 秘密情報を `NEXT_PUBLIC_*` へ入れないでください。これらはブラウザへ公開されます。
 
+ログイン画面の管理トークンは `sessionStorage` にだけ保持し、すべてのResearch APIリクエストにBearer tokenとして付与します。`localStorage` のユーザーセッションには保存しません。タブを閉じるかログアウトすると管理トークンは失われます。ローカル開発時だけ `.env.local` に `NEXT_PUBLIC_API_TOKEN=local-dev-token` を設定してfallbackにできますが、本番 `.env` にはtokenを置きません。
+
 ```bash
 cp .env.example .env.local # 未作成の場合のみ
 npm install

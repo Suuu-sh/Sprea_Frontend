@@ -18,10 +18,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 12_000);
   try {
-    const response = await fetch(`${API}${path}`, { cache: "no-store", ...init, signal: controller.signal });
+    const token = typeof window === "undefined" ? process.env.NEXT_PUBLIC_API_TOKEN ?? "" : sessionStorage.getItem("sprea_admin_token") ?? process.env.NEXT_PUBLIC_API_TOKEN ?? "";
+    const headers = new Headers(init?.headers);
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+    const response = await fetch(`${API}${path}`, { cache: "no-store", ...init, headers, signal: controller.signal });
     if (!response.ok) {
       let detail = "";
       try { detail = String((await response.json() as { error?: string }).error ?? ""); } catch { /* non-JSON response */ }
+      if (response.status === 401) throw new ApiError("管理トークンが正しくありません。ログアウトして再ログインしてください。", 401);
       throw new ApiError(detail || `APIがエラーを返しました（${response.status}）`, response.status);
     }
     return await response.json() as T;
@@ -31,13 +35,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError("APIに接続できませんでした。接続先と起動状態を確認してください。");
   } finally { clearTimeout(timeout); }
 }
-const json = (method: "POST" | "PUT", body?: unknown): RequestInit => ({ method, headers: body === undefined ? undefined : { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+function mutation(method: "POST" | "PUT", body?: unknown): RequestInit {
+  const headers: Record<string,string> = {};
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+  return { method, headers, body: body === undefined ? undefined : JSON.stringify(body) };
+}
 export const getResearchDashboard = () => request<ResearchDashboard>("/api/research/dashboard");
 export const getProductDetail = (key: string) => request<ProductDetail>(`/api/research/products/${encodeURIComponent(key)}`);
 export const listPaperTrades = () => request<PaperTrade[]>("/api/research/paper-trades");
-export const closePaperTrade = (id: number) => request<PaperTrade>(`/api/research/paper-trades/${id}/close`, json("POST"));
+export const closePaperTrade = (id: number) => request<PaperTrade>(`/api/research/paper-trades/${id}/close`, mutation("POST"));
 export const getResearchSettings = () => request<ResearchSettings>("/api/research/settings");
-export const saveResearchSettingsData = (settings: ResearchSettings) => request<ResearchSettings>("/api/research/settings", json("PUT", settings));
+export const saveResearchSettingsData = (settings: ResearchSettings) => request<ResearchSettings>("/api/research/settings", mutation("PUT", settings));
 export const getEvaluatorStatus = () => request<{ schedules: EvaluationSchedule[]; runs: EvaluatorRun[] }>("/api/research/evaluator");
-export const runEvaluator = () => request<EvaluatorRun>("/api/research/evaluator/run", json("POST"));
+export const runEvaluator = () => request<EvaluatorRun>("/api/research/evaluator/run", mutation("POST"));
 export const getCollectorStatus = () => request<CollectorStatus>("/api/collector/status?limit=20");

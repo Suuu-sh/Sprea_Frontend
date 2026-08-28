@@ -14,6 +14,8 @@
 - Evaluator displays all 24h / 48h / 72h / 7d schedules and recent run history.
 - Collector screen displays API-derived last-run health and empty run-history state.
 - Research settings load the persisted backend values and expose validation/error feedback.
+- The login admin token remains in session storage only; all Research API requests send Bearer authorization for personal-data protection.
+- Backend 401 responses display an admin-token-specific re-login message.
 - Loading, empty, connection error, action error and success messages are present.
 - Local `.env.local` shows `LOCAL MOCK DATA`; `.env` remains the production default.
 
@@ -28,7 +30,7 @@
 ## Automated checks
 
 - `npm run lint`: passed
-- `npm test`: 3 passed
+- `npm test`: 4 passed
 - `npm run build`: passed; all routes statically generated
 
 final result: passed
