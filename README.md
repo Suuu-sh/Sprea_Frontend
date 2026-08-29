@@ -52,4 +52,4 @@ npm run build
 npm run deploy:pages
 ```
 
-GitHub Actionsには `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID` をSecrets、`NEXT_PUBLIC_API_URL`をRepository Variableとして設定します。
+GitHub Actionsには `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID` をSecrets、`NEXT_PUBLIC_API_URL`をRepository Variableとして設定します。デプロイワークフローは `NEXT_PUBLIC_APP_ENV=production` を明示し、ローカル用設定の混入を防ぎます。
