@@ -1,7 +1,7 @@
 import { CollectorRun } from "@/lib/api";
 import { Section } from "@/components/ui";
 
-export type SourceItem = { name: string; side: string; method: string; status: string; kind: string; note: string };
+export type SourceItem = { key: string; name: string; side: string; method: string; status: string; kind: string; note: string };
 
 export function CollectorHealth({ run }: { run: CollectorRun | null }) {
   return <section className="collector-health"><div><span>最終実行</span><b>{run ? new Date(run.finishedAt).toLocaleString("ja-JP") : "未実行"}</b></div><div><span>状態</span><b className={run?.status === "failed" ? "danger" : "green"}>{run?.status ?? "待機中"}</b></div><div><span>取得件数</span><b>{run?.itemCount ?? 0}件</b></div><div><span>異常メッセージ</span><b>{run?.message || "なし"}</b></div></section>;

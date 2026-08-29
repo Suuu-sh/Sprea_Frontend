@@ -12,7 +12,8 @@ export type ResearchSettings = { initialCapital: number; minimumProfit: number; 
 export type EvaluationSchedule = { decisionId: number; canonicalKey: string; title: string; horizonHours: number; dueAt: string; status: string; outcome?: string; profit?: number; decay?: number; decayRate?: number };
 export type EvaluatorRun = { id: number; trigger: string; status: string; evaluatedCount: number; message: string; startedAt: string; finishedAt: string };
 export type CollectorRun = { id: number; runId: string; source: string; status: string; itemCount: number; message: string; startedAt: string; finishedAt: string };
-export type CollectorStatus = { lastRun: CollectorRun | null; runs: CollectorRun[] };
+export type SourceConnection = { source: string; side: "retail" | "buyback"; itemCount: number; lastSuccessAt: string | null; status: "connected" | "configured" };
+export type CollectorStatus = { lastRun: CollectorRun | null; runs: CollectorRun[]; sources: SourceConnection[] };
 
 const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8787").replace(/\/$/, "");
 export class ApiError extends Error { constructor(message: string, public readonly status?: number) { super(message); this.name = "ApiError"; } }
