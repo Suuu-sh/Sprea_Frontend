@@ -21,14 +21,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 12_000);
   try {
-    const token = typeof window === "undefined" ? process.env.NEXT_PUBLIC_API_TOKEN ?? "" : sessionStorage.getItem("sprea_admin_token") ?? process.env.NEXT_PUBLIC_API_TOKEN ?? "";
     const headers = new Headers(init?.headers);
-    if (token) headers.set("Authorization", `Bearer ${token}`);
     const response = await fetch(`${API}${path}`, { cache: "no-store", ...init, headers, signal: controller.signal });
     if (!response.ok) {
       let detail = "";
       try { detail = String((await response.json() as { error?: string }).error ?? ""); } catch { /* non-JSON response */ }
-      if (response.status === 401) throw new ApiError("管理トークンが正しくありません。ログアウトして再ログインしてください。", 401);
       throw new ApiError(detail || `APIがエラーを返しました（${response.status}）`, response.status);
     }
     return await response.json() as T;
