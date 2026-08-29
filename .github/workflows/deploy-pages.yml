@@ -17,6 +17,7 @@ jobs:
       - run: npm run lint
       - run: npm run build
         env:
+          NEXT_PUBLIC_APP_ENV: production
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
       - uses: cloudflare/wrangler-action@v3
         with:
