@@ -15,6 +15,9 @@ export type EvaluatorRun = { id: number; trigger: string; status: string; evalua
 export type CollectorRun = { id: number; runId: string; source: string; status: string; itemCount: number; message: string; startedAt: string; finishedAt: string };
 export type SourceConnection = { source: string; side: "retail" | "buyback"; itemCount: number; lastSuccessAt: string | null; status: "connected" | "configured" };
 export type CollectorStatus = { lastRun: CollectorRun | null; runs: CollectorRun[]; sources: SourceConnection[] };
+export type DiscoveryProviderState = { status: string; lastSearchedAt: string | null; failureCount: number };
+export type DiscoveryTarget = { id: number; canonicalProductId: number | null; productName: string; jan: string | null; modelNumber: string | null; brand: string | null; category: string | null; condition: string; attributes: Record<string, unknown>; bestBuybackPrice: number; bestBuybackProvider: string; buybackProviderCount: number; resolverStatus: string; resolverConfidence: number; resolverReason: string; searchQuery: string; targetPurchasePrice: number; discoveryCeiling: number; yahoo: DiscoveryProviderState; rakuten: DiscoveryProviderState; retailResultCount: number; latestResultAt: string | null };
+export type DiscoveryTargetsResponse = { total: number; items: DiscoveryTarget[] };
 
 const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8787").replace(/\/$/, "");
 export class ApiError extends Error { constructor(message: string, public readonly status?: number) { super(message); this.name = "ApiError"; } }
@@ -51,3 +54,4 @@ export const saveResearchSettingsData = (settings: ResearchSettings) => request<
 export const getEvaluatorStatus = () => request<{ schedules: EvaluationSchedule[]; runs: EvaluatorRun[] }>("/api/research/evaluator");
 export const runEvaluator = () => request<EvaluatorRun>("/api/research/evaluator/run", mutation("POST"));
 export const getCollectorStatus = () => request<CollectorStatus>("/api/collector/status?limit=20");
+export const getDiscoveryTargets = () => request<DiscoveryTargetsResponse>("/api/research/discovery-candidates?limit=1000");
