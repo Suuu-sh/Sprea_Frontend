@@ -19,6 +19,15 @@ export type DiscoveryProviderState = { status: string; lastSearchedAt: string | 
 export type DiscoveryTarget = { id: number; canonicalProductId: number | null; productName: string; jan: string | null; modelNumber: string | null; brand: string | null; category: string | null; condition: string; attributes: Record<string, unknown>; bestBuybackPrice: number; bestBuybackProvider: string; buybackProviderCount: number; resolverStatus: string; resolverConfidence: number; resolverReason: string; searchQuery: string; targetPurchasePrice: number; discoveryCeiling: number; yahoo: DiscoveryProviderState; rakuten: DiscoveryProviderState; amazon: DiscoveryProviderState; retailResultCount: number; retailProviderCount: number; lowestRetailPrice: number | null; estimatedProfit: number | null; profitGap: number | null; latestResultAt: string | null };
 export type DiscoveryTargetsResponse = { total: number; providers: string[]; items: DiscoveryTarget[] };
 export type DiscoveryRunResult = { runId: number; searched: number; retailFound: number; purchasable: number; profitable: number; threshold: number; failures: number };
+export type ResearchAnalytics = {
+  evaluationCoverage: Array<{ horizon: number; total: number; completed: number; pendingData: number }>;
+  scoreSuccess: Array<{ bucket: string; evaluated: number; successRate: number }>;
+  providerRetention: Array<{ side: "retail" | "buyback"; provider: string; horizon: number; evaluated: number; retentionRate: number }>;
+  categories: Array<{ category: string; opportunities: number; buys: number; averageProfit: number; maximumProfit: number }>;
+  providerProfitGaps: Array<{ provider: string; listings: number; products: number; averageProfitGap: number; thresholdCount: number }>;
+  nearBuy: Array<{ candidateId: number; productName: string; category: string | null; retailProvider: string; buybackProvider: string; retailPrice: number; buybackPrice: number; estimatedProfit: number; profitGap: number; productUrl: string }>;
+  discoveryComparison: { products: number; beforeAverageGap: number; afterAverageGap: number; averageImprovement: number };
+};
 
 const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8787").replace(/\/$/, "");
 export class ApiError extends Error { constructor(message: string, public readonly status?: number) { super(message); this.name = "ApiError"; } }
@@ -57,3 +66,4 @@ export const runEvaluator = () => request<EvaluatorRun>("/api/research/evaluator
 export const getCollectorStatus = () => request<CollectorStatus>("/api/collector/status?limit=20");
 export const getDiscoveryTargets = () => request<DiscoveryTargetsResponse>("/api/research/discovery-candidates?limit=1000");
 export const runDiscoveryNow = () => request<DiscoveryRunResult>("/api/research/discovery/run", mutation("POST"));
+export const getResearchAnalytics = () => request<ResearchAnalytics>("/api/research/analytics");
