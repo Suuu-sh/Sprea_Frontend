@@ -3,7 +3,7 @@
 ## Evidence
 
 - Source visual truth: `/Users/yota/.codex/generated_images/01a04646-9a41-77d0-82fa-f82fc2aefe1e/exec-d1eab5f1-c563-435b-9034-65ea99185c86.png`
-- Browser-rendered implementation: `/Users/yota/.codex/.chatgpt-projects/g-p-6a8b0bc7ff6881918beea5f11d8da8eb/sprea-decision-lens-home-viewport-light.png`
+- Browser-rendered implementation: `/Users/yota/.codex/.chatgpt-projects/g-p-6a8b0bc7ff6881918beea5f11d8da8eb/sprea-screenshot-match-v3.png`
 - Combined comparison: `/Users/yota/.codex/.chatgpt-projects/g-p-6a8b0bc7ff6881918beea5f11d8da8eb/sprea-design-comparison.png`
 - Responsive evidence: `/Users/yota/.codex/.chatgpt-projects/g-p-6a8b0bc7ff6881918beea5f11d8da8eb/sprea-mobile-home.png`
 - Source pixels: 1487 × 1058; center-cropped to 1440 × 1024 for comparison.
@@ -13,7 +13,7 @@
 
 ## Full-view comparison
 
-The source and implementation share the same narrow light sidebar, compact header, five-metric strip, dominant analysis region, dense decision table, and right-side analyst brief. The implementation uses the actual local dataset rather than the richer illustrative mock state, so row count and chart values intentionally differ.
+The source and implementation now share the same narrow light sidebar, compact header, five-metric strip constrained to the primary column, short composed trend chart, dense ranked table, and analyst brief beginning at the top of the right rail. The implementation uses the actual local dataset rather than the richer illustrative mock state, so row count and chart values intentionally differ.
 
 ## Focused comparison
 
@@ -42,12 +42,26 @@ No actionable P0, P1, or P2 findings remain.
 - [P1] Sidebar color did not match the selected third concept.
   - Evidence: the first implementation used a dark navy sidebar while the selected concept used a light analytical rail.
   - Fix: changed the shared sidebar, account panel, navigation states, and footer to light neutral surfaces with a teal active marker.
-  - Post-fix evidence: `sprea-design-comparison.png` shows the source and updated implementation side by side with matching light navigation treatment.
+- Post-fix evidence: `sprea-design-comparison.png` shows the source and updated implementation side by side with matching light navigation treatment.
+
+### Iteration 2
+
+- [P1] Primary/brief column composition did not match the attached screenshot.
+  - Evidence: the earlier implementation placed KPIs across the full workspace and began the analyst rail below them.
+  - Fix: moved the KPI strip into the primary column and started the data warning and analyst brief at the top of the right rail.
+- [P1] Trend region was too tall and pushed the decision table below the intended visual hierarchy.
+  - Evidence: the earlier snapshot chart occupied roughly twice the source height.
+  - Fix: reduced the trend region to 112px and implemented the source-like bar, average line, moving-average line, and threshold using Recharts.
+- [P2] The ranked table lacked the source filter controls and column density.
+  - Evidence: the earlier table had fewer analytical columns and no All/BUY/SKIP interaction.
+  - Fix: added working filters, required-profit and confidence columns, native progress indicators, compact 52px rows, and the manual-update footer.
+- Post-fix evidence: the current `sprea-design-comparison.png` shows the corrected top-level proportions, compact trend, filter row, table density, and right-side briefing.
 
 ## Primary interactions checked
 
 - Main navigation from 案件リサーチ to 分析.
 - Dashboard refresh action.
+- All/BUY/SKIP decision filters.
 - Every route rendered: `/`, `/targets`, `/opportunities`, `/analytics`, `/paper-trading`, `/evaluations`, `/sources`, `/settings`, and `/guide`.
 - Browser console checked after navigation and refresh: no errors.
 - Responsive check at 390 × 844: no horizontal document overflow; mobile navigation remains available.
