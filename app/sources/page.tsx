@@ -14,7 +14,7 @@ const catalog:SourceItem[]=[
  {key:"kaitori_1chome",name:"買取1丁目",side:"買取",method:"Public Collector / Ingest API",status:"未取得",kind:"pending",note:"取込データから動的に接続状況を確認します"},
  {key:"morimori",name:"森森買取",side:"買取",method:"Public Collector / Ingest API",status:"未取得",kind:"pending",note:"取込データから動的に接続状況を確認します"},
  {key:"kaitori_shouten",name:"買取商店",side:"買取",method:"Public Collector / Ingest API",status:"未取得",kind:"pending",note:"取込データから動的に接続状況を確認します"},
- {key:"amazon",name:"Amazon.co.jp",side:"販売",method:"Creators API",status:"未接続",kind:"pending",note:"Webページのスクレイピングは禁止"},
+ {key:"amazon-discovery",name:"Amazon.co.jp",side:"販売",method:"Creators API",status:"未接続",kind:"pending",note:"公式APIのみ使用。Webページのスクレイピングは禁止"},
  {key:"apple",name:"Apple.com",side:"販売",method:"自動取得なし",status:"使用禁止",kind:"blocked",note:"規約に基づきスクレイピングしません"}
 ];
 const date=(x:string)=>new Date(x).toLocaleString("ja-JP");
