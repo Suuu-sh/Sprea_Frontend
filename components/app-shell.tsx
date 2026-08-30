@@ -1,11 +1,11 @@
 "use client";
 import Link from "next/link";
-import {Bell,Database,FlaskConical,History,ListFilter,PackageSearch,Settings,TrendingUp,WalletCards} from "lucide-react";
+import {Bell,CircleHelp,Database,FlaskConical,History,ListFilter,PackageSearch,Settings,TrendingUp,WalletCards} from "lucide-react";
 import {usePathname} from "next/navigation";
 import {ReactNode} from "react";
 import {dataLabel,isProduction} from "@/lib/environment";
 
-const nav=[{href:"/",label:"案件リサーチ",icon:TrendingUp},{href:"/targets",label:"探索対象商品",icon:ListFilter},{href:"/opportunities",label:"該当商品",icon:PackageSearch},{href:"/paper-trading",label:"Paper Trading",icon:WalletCards},{href:"/evaluations",label:"自動評価",icon:History},{href:"/sources",label:"データ取得元",icon:Database},{href:"/settings",label:"設定",icon:Settings}];
+const nav=[{href:"/",label:"案件リサーチ",icon:TrendingUp},{href:"/targets",label:"探索対象商品",icon:ListFilter},{href:"/opportunities",label:"該当商品",icon:PackageSearch},{href:"/paper-trading",label:"Paper Trading",icon:WalletCards},{href:"/evaluations",label:"自動評価",icon:History},{href:"/sources",label:"データ取得元",icon:Database},{href:"/settings",label:"設定",icon:Settings},{href:"/guide",label:"使い方",icon:CircleHelp}];
 
 export function AppShell({children,capital=300000,title="案件リサーチ",description="個人用リサーチ環境",badge,actions}:{children:ReactNode;capital?:number;title?:string;description?:string;badge?:string;actions?:ReactNode}){
  const pathname=usePathname();
