@@ -8,9 +8,9 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "deploy:pages": "npm run build:production && wrangler pages deploy out --project-name sprea-frontend",
+    "deploy:pages": "npm run build && npm run verify:production-build && wrangler pages deploy out --project-name sprea-frontend",
     "test": "node --experimental-transform-types --test tests/*.test.mjs",
-    "build:production": "NEXT_PUBLIC_APP_ENV=production NEXT_PUBLIC_API_URL=https://sprea-research.suuu-sh.workers.dev next build"
+    "verify:production-build": "node scripts/verify-production-build.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
