@@ -1,5 +1,7 @@
 # Sprea Frontend
 
+> 画面や判定仕様を変更する場合は、`app/guide/page.tsx` と `docs/usage-guide-maintenance.md` も同じPull Requestで確認・更新してください。
+
 Sprea Researchの個人利用向けWebフロントエンドです。案件、商品・価格履歴、Paper Trading、Evaluator、Collector実行状態、研究設定をバックエンドの表示・操作APIへ接続します。
 
 ## 環境
