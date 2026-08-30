@@ -29,7 +29,7 @@ export type ResearchAnalytics = {
   discoveryComparison: { products: number; beforeAverageGap: number; afterAverageGap: number; averageImprovement: number };
 };
 
-const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8787").replace(/\/$/, "");
+const API = (process.env.NODE_ENV === "production" ? "https://sprea-research.suuu-sh.workers.dev" : process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8788").replace(/\/$/, "");
 export class ApiError extends Error { constructor(message: string, public readonly status?: number) { super(message); this.name = "ApiError"; } }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
