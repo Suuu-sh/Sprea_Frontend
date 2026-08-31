@@ -5,7 +5,9 @@
 - Source visual truth: `/Users/yota/.codex/generated_images/01a04646-9a41-77d0-82fa-f82fc2aefe1e/exec-d1eab5f1-c563-435b-9034-65ea99185c86.png`
 - Browser-rendered implementation: `/Users/yota/.codex/.chatgpt-projects/g-p-6a8b0bc7ff6881918beea5f11d8da8eb/sprea-screenshot-match-v3.png`
 - Combined comparison: `/Users/yota/.codex/.chatgpt-projects/g-p-6a8b0bc7ff6881918beea5f11d8da8eb/sprea-design-comparison.png`
-- Responsive evidence: `/Users/yota/.codex/.chatgpt-projects/g-p-6a8b0bc7ff6881918beea5f11d8da8eb/sprea-mobile-home.png`
+- Responsive home evidence: `/Users/yota/.codex/.chatgpt-projects/g-p-6a8b0bc7ff6881918beea5f11d8da8eb/sprea-mobile-home-final.png`
+- Responsive navigation evidence: `/Users/yota/.codex/.chatgpt-projects/g-p-6a8b0bc7ff6881918beea5f11d8da8eb/sprea-mobile-menu-final.png`
+- Responsive settings evidence: `/Users/yota/.codex/.chatgpt-projects/g-p-6a8b0bc7ff6881918beea5f11d8da8eb/sprea-mobile-settings-final.png`
 - Source pixels: 1487 × 1058; center-cropped to 1440 × 1024 for comparison.
 - Implementation pixels/CSS viewport: 1440 × 1024 at device scale 1.
 - Combined comparison pixels: 2880 × 1024, source left and implementation right.
@@ -57,6 +59,28 @@ No actionable P0, P1, or P2 findings remain.
   - Fix: added working filters, required-profit and confidence columns, native progress indicators, compact 52px rows, and the manual-update footer.
 - Post-fix evidence: the current `sprea-design-comparison.png` shows the corrected top-level proportions, compact trend, filter row, table density, and right-side briefing.
 
+### Iteration 3 — mobile usability
+
+- [P1] Secondary pages had no visible mobile back action.
+  - Fix: added a consistent 38px back button to every non-root page, including a safe home fallback for direct-entry sessions.
+- [P1] The bottom navigation exposed every route in a horizontally scrolling strip.
+  - Fix: reduced it to four primary destinations plus a stable `その他` action and added a two-column all-pages sheet with active state, close action, environment, and capital context.
+- [P1] The guide page exceeded the 390px viewport because a later desktop grid rule overrode its responsive layout.
+  - Fix: constrained the guide grid and horizontal table of contents to the mobile viewport.
+- [P2] Dense trade and header actions did not adapt cleanly at narrow widths.
+  - Fix: stacked trade cards and clock controls, compacted header actions, and added safe-area-aware bottom spacing.
+- Post-fix evidence: all nine application routes report a 390px document width in a 390px viewport; the menu opens, routes correctly, and closes after navigation.
+
+### Iteration 4 — chart baseline
+
+- [P1] Negative profit bars used an automatically cropped Y-axis that excluded zero, so the upper part of each bar disappeared at the plot boundary.
+  - Fix: forced the analytical scale to include both the zero baseline and the ¥5,000 decision threshold, then rendered an explicit zero reference line. Negative bars now remain visible continuously from zero to their measured value.
+
+### Iteration 5 — data-driven briefing
+
+- [P1] The data-insufficiency message was static and would remain unchanged after evaluation samples accumulated.
+  - Fix: connected the briefing to the actual 48-hour evaluated count and Precision. It now reports loading, the remaining samples below 10, accumulation from 10–29, and an analysis-ready state from 30 samples.
+
 ## Primary interactions checked
 
 - Main navigation from 案件リサーチ to 分析.
@@ -65,6 +89,9 @@ No actionable P0, P1, or P2 findings remain.
 - Every route rendered: `/`, `/targets`, `/opportunities`, `/analytics`, `/paper-trading`, `/evaluations`, `/sources`, `/settings`, and `/guide`.
 - Browser console checked after navigation and refresh: no errors.
 - Responsive check at 390 × 844: no horizontal document overflow; mobile navigation remains available.
+- Mobile menu checked: open, close, active route, and navigation to Settings.
+- Mobile back action checked on a non-root route.
+- Desktop regression check at 1440 × 1024: mobile controls remain hidden and document width matches viewport.
 
 ## Follow-up polish
 
@@ -77,6 +104,8 @@ No actionable P0, P1, or P2 findings remain.
 - [x] Rebuild the home screen around opportunity monitoring and analyst briefing.
 - [x] Normalize tables, status states, panels, filters, settings, and guide pages.
 - [x] Verify desktop and mobile rendering.
+- [x] Provide mobile back navigation and a complete all-pages menu.
+- [x] Verify all nine routes at 390 × 844 without horizontal overflow.
 - [x] Verify primary navigation and refresh behavior.
 
 final result: passed
