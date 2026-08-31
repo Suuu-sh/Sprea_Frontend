@@ -192,6 +192,7 @@ button,input,select{outline-color:var(--teal)}
 .watchlist-footer{height:42px;padding:0 16px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:8px}
 .analysis-brief{background:#fff}
 .brief-overview{min-height:103px;padding:17px 18px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;gap:10px;color:#536278}.brief-overview svg{width:15px;min-width:15px;height:15px}.brief-overview p{margin:0!important;color:#536278!important;font-size:9px!important;line-height:1.6!important}
+.brief-overview p b{color:var(--ink);font-size:10px}.brief-overview.ready{background:var(--teal-soft);color:var(--teal-dark)}.brief-overview.ready p{color:var(--teal-dark)!important}
 .brief-title{margin-top:14px;border-top:1px solid var(--line);padding-top:14px;padding-bottom:14px}.brief-title>span{display:none}
 .analysis-brief>section{padding-top:15px;padding-bottom:15px}
 

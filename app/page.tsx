@@ -39,7 +39,7 @@ export default function Home(){
  const visibleWatchlist=watchlist.filter(item=>filter==="all"||item.status.toLowerCase()===filter),buyCount=watchlist.filter(item=>item.status==="BUY").length,skipCount=watchlist.filter(item=>item.status==="SKIP").length;
  const plotValues=watchlist.slice(0,12).reverse();
  const chartData=plotValues.map((item,index,items)=>{const history=items.slice(0,index+1),recent=history.slice(-3);return{label:time(item.at),profit:item.profit,average:Math.round(history.reduce((sum,row)=>sum+row.profit,0)/history.length),moving:Math.round(recent.reduce((sum,row)=>sum+row.profit,0)/recent.length)}});
- const allocated=portfolio.initialCapital?portfolio.lockedCapital/portfolio.initialCapital*100:0;
+ const allocated=portfolio.initialCapital?portfolio.lockedCapital/portfolio.initialCapital*100:0,evaluated=data?.metrics48h.evaluated??0,precision=(data?.metrics48h.precision??0)*100;
 
  return <AppShell capital={portfolio.initialCapital} title="案件リサーチ" description={`${dataLabel}で、利益機会・判定精度・資金配分を監視します。`} badge={environmentBadge} actions={<button className="tool-button" onClick={load} disabled={loading}><RefreshCw/>更新</button>}>
   <div className="research-layout">
@@ -65,10 +65,10 @@ export default function Home(){
    </div>
 
    <aside className="analysis-brief" aria-label="分析ブリーフィング">
-    <div className="brief-overview"><AlertCircle/><p>本日はデータが不足しており、<br/>安定的な評価ができません。<br/><br/>十分なサンプルが蓄積されると、<br/>トレンドを表示します。</p></div>
+    <div className={`brief-overview${evaluated>=30?" ready":""}`}><AlertCircle/><p>{loading?<>分析データを読み込んでいます。</>:evaluated<10?<>48時間後の評価済みデータは<br/><b>{evaluated}件</b>です。安定的な評価には<br/>あと<b>{10-evaluated}件</b>必要です。</>:evaluated<30?<>評価済みデータは<b>{evaluated}件</b>です。<br/>現在の48h Precisionは<br/><b>{percent(precision)}</b>です。引き続き蓄積します。</>:<>評価済みデータが<b>{evaluated}件</b>蓄積され、<br/>分析可能な状態です。<br/>48h Precisionは<b>{percent(precision)}</b>です。</>}</p></div>
     <div className="brief-title"><span>ANALYST BRIEF</span><h2>分析ブリーフィング</h2></div>
     <section><h3>資金状況</h3><dl><div><dt>研究資金</dt><dd>{yen(portfolio.initialCapital)}</dd></div><div><dt>利用可能</dt><dd className="positive">{yen(portfolio.availableCash)}（{percent(100-allocated)}）</dd></div><div><dt>拘束中</dt><dd>{yen(portfolio.lockedCapital)}（{percent(allocated)}）</dd></div><div><dt>現在の平均利益</dt><dd>{opportunities.length?yen(total/opportunities.length):yen(0)}</dd></div></dl></section>
-    <section><h3>モデル評価（48h Precision）</h3><strong className="brief-metric">{percent((data?.metrics48h.precision??0)*100)}</strong><p>評価済みサンプル: {data?.metrics48h.evaluated??0}件</p>{(data?.metrics48h.evaluated??0)<10&&<p className="brief-note"><AlertCircle/>サンプル不足のため、精度を断定できません。</p>}</section>
+    <section><h3>モデル評価（48h Precision）</h3><strong className="brief-metric">{percent(precision)}</strong><p>評価済みサンプル: {evaluated}件</p>{evaluated<10&&<p className="brief-note"><AlertCircle/>サンプル不足のため、精度を断定できません。</p>}</section>
     <section><h3>SKIP理由トップ</h3>{observability?.skipReasons.length?<ol className="skip-ranking">{observability.skipReasons.slice(0,5).map((item,index)=><li key={item.reason}><span>{index+1}　{reasonLabels[item.reason]??item.reason}</span><b>{item.count}件</b></li>)}</ol>:<p>本日のSKIPはまだありません。</p>}</section>
     <section><h3>ディスカバリーファネル</h3><ol className="brief-funnel">{funnel.map(([label,value],index)=>{const previous=index?funnel[index-1][1]:0,conversion=index&&previous?value/previous*100:null;return <li key={label}><span><small>{label}</small><b>{value.toLocaleString("ja-JP")}件</b></span><em>{conversion===null?"—":percent(conversion)}</em></li>})}</ol><p className="brief-note"><AlertCircle/>各段階は処理タイミングにより一時的に前後する場合があります。</p></section>
    </aside>
