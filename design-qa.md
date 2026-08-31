@@ -71,6 +71,11 @@ No actionable P0, P1, or P2 findings remain.
   - Fix: stacked trade cards and clock controls, compacted header actions, and added safe-area-aware bottom spacing.
 - Post-fix evidence: all nine application routes report a 390px document width in a 390px viewport; the menu opens, routes correctly, and closes after navigation.
 
+### Iteration 4 — chart baseline
+
+- [P1] Negative profit bars used an automatically cropped Y-axis that excluded zero, so the upper part of each bar disappeared at the plot boundary.
+  - Fix: forced the analytical scale to include both the zero baseline and the ¥5,000 decision threshold, then rendered an explicit zero reference line. Negative bars now remain visible continuously from zero to their measured value.
+
 ## Primary interactions checked
 
 - Main navigation from 案件リサーチ to 分析.
