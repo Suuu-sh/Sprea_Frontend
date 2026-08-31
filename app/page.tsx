@@ -10,7 +10,7 @@ import {dataLabel,environmentBadge} from "@/lib/environment";
 
 const yen=(value:number)=>new Intl.NumberFormat("ja-JP",{style:"currency",currency:"JPY",maximumFractionDigits:0}).format(value);
 const percent=(value:number)=>`${value.toFixed(1)}%`;
-const time=(value:string)=>new Date(value).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"});
+const time=(value:string)=>new Date(value).toLocaleTimeString("ja-JP",{timeZone:"Asia/Tokyo",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false});
 const reasonLabels:Record<string,string>={profit_below_threshold:"利益不足",confidence_below_threshold:"Confidence不足",insufficient_buyback_providers:"買取店舗不足",insufficient_funds:"資金不足",duplicate_holding:"同一商品を保有中",stale_listing:"販売価格が古い",stale_buyback:"買取価格が古い",out_of_stock:"在庫なし",buyback_closed:"買取停止",unresolved_product:"商品未解決",other:"その他"};
 type WatchlistRow={id:string;title:string;status:"BUY"|"SKIP";profit:number;gap:number;confidence:number|null;requiredConfidence:number;detail:string;at:string;score:number|null};
 
