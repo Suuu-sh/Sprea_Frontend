@@ -18,7 +18,7 @@ export type CollectorStatus = { lastRun: CollectorRun | null; runs: CollectorRun
 export type DiscoveryProviderState = { status: string; lastSearchedAt: string | null; failureCount: number; resultCount: number };
 export type StabilityWindow = { days: number; samples: number; average: number | null; minimum: number | null; maximum: number | null; dropFromPeak: number | null; variationRate: number | null };
 export type DiscoveryTarget = { id: number; canonicalProductId: number | null; productName: string; jan: string | null; modelNumber: string | null; brand: string | null; category: string | null; condition: string; attributes: Record<string, unknown>; bestBuybackPrice: number; bestBuybackProvider: string; buybackProviderCount: number; resolverStatus: string; resolverConfidence: number; resolverReason: string; identityStatus: "jan_exact"|"model_exact"|"insufficient"; searchQuery: string; targetPurchasePrice: number; discoveryCeiling: number; yahoo: DiscoveryProviderState; rakuten: DiscoveryProviderState; amazon: DiscoveryProviderState; retailResultCount: number; retailProviderCount: number; lowestRetailPrice: number | null; estimatedProfit: number | null; profitGap: number | null; latestResultAt: string | null; stability: { windows: StabilityWindow[]; leaderDependence: number | null; historyDays: number; status: "measured"|"accumulating" }; recommendationScore: number };
-export type DiscoveryTargetsResponse = { total: number; providers: string[]; items: DiscoveryTarget[] };
+export type DiscoveryTargetsResponse = { total: number; page: number; pageSize: number; hasNext: boolean; providers: string[]; items: DiscoveryTarget[] };
 export type DiscoveryRunResult = { runId: number; searched: number; retailFound: number; purchasable: number; profitable: number; threshold: number; failures: number };
 export type ResearchAnalytics = {
   evaluationCoverage: Array<{ horizon: number; total: number; completed: number; pendingData: number }>;
@@ -65,6 +65,6 @@ export const saveResearchSettingsData = (settings: ResearchSettings) => request<
 export const getEvaluatorStatus = () => request<{ schedules: EvaluationSchedule[]; runs: EvaluatorRun[] }>("/api/research/evaluator");
 export const runEvaluator = () => request<EvaluatorRun>("/api/research/evaluator/run", mutation("POST"));
 export const getCollectorStatus = () => request<CollectorStatus>("/api/collector/status?limit=20");
-export const getDiscoveryTargets = () => request<DiscoveryTargetsResponse>("/api/research/discovery-candidates?limit=1000");
+export const getDiscoveryTargets = (page = 1, pageSize = 100) => request<DiscoveryTargetsResponse>(`/api/research/discovery-candidates?limit=${pageSize}&page=${page}`);
 export const runDiscoveryNow = () => request<DiscoveryRunResult>("/api/research/discovery/run", mutation("POST"));
 export const getResearchAnalytics = () => request<ResearchAnalytics>("/api/research/analytics");
