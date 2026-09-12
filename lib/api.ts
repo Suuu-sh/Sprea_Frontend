@@ -15,6 +15,23 @@ export type EvaluatorRun = { id: number; trigger: string; status: string; evalua
 export type CollectorRun = { id: number; runId: string; source: string; status: string; itemCount: number; message: string; startedAt: string; finishedAt: string };
 export type SourceConnection = { source: string; side: "retail" | "buyback"; itemCount: number; lastSuccessAt: string | null; status: "connected" | "configured" };
 export type CollectorStatus = { lastRun: CollectorRun | null; runs: CollectorRun[]; sources: SourceConnection[] };
+export type KaitorixCsvStatus = {
+  configured: boolean;
+  today: string;
+  objectKey: string;
+  archivedToday: boolean;
+  latest: CollectorRun | null;
+  progress?: {
+    status: "archived" | "importing" | "completed";
+    date: string;
+    objectKey: string;
+    bytes?: number;
+    rowsRead?: number;
+    totalCandidates?: number;
+    importedCandidates?: number;
+    updatedAt: string;
+  } | null;
+};
 export type DiscoveryProviderState = { status: string; lastSearchedAt: string | null; failureCount: number; resultCount: number };
 export type StabilityWindow = { days: number; samples: number; average: number | null; minimum: number | null; maximum: number | null; dropFromPeak: number | null; variationRate: number | null };
 export type DiscoveryTarget = { id: number; canonicalProductId: number | null; productName: string; jan: string | null; modelNumber: string | null; brand: string | null; category: string | null; condition: string; attributes: Record<string, unknown>; bestBuybackPrice: number; bestBuybackProvider: string; buybackProviderCount: number; resolverStatus: string; resolverConfidence: number; resolverReason: string; identityStatus: "jan_exact"|"model_exact"|"insufficient"; searchQuery: string; targetPurchasePrice: number; discoveryCeiling: number; yahoo: DiscoveryProviderState; rakuten: DiscoveryProviderState; amazon: DiscoveryProviderState; retailResultCount: number; retailProviderCount: number; lowestRetailPrice: number | null; estimatedProfit: number | null; profitGap: number | null; latestResultAt: string | null; stability: { windows: StabilityWindow[]; leaderDependence: number | null; historyDays: number; status: "measured"|"accumulating" }; recommendationScore: number };
@@ -65,6 +82,7 @@ export const saveResearchSettingsData = (settings: ResearchSettings) => request<
 export const getEvaluatorStatus = () => request<{ schedules: EvaluationSchedule[]; runs: EvaluatorRun[] }>("/api/research/evaluator");
 export const runEvaluator = () => request<EvaluatorRun>("/api/research/evaluator/run", mutation("POST"));
 export const getCollectorStatus = () => request<CollectorStatus>("/api/collector/status?limit=20");
+export const getKaitorixCsvStatus = () => request<KaitorixCsvStatus>("/api/kaitorix/csv/status");
 export const getDiscoveryTargets = (page = 1, pageSize = 100) => request<DiscoveryTargetsResponse>(`/api/research/discovery-candidates?limit=${pageSize}&page=${page}`);
 export const runDiscoveryNow = () => request<DiscoveryRunResult>("/api/research/discovery/run", mutation("POST"));
 export const getResearchAnalytics = () => request<ResearchAnalytics>("/api/research/analytics");
