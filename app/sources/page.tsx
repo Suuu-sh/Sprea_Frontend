@@ -1,12 +1,14 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
+
 import {useCallback,useEffect,useMemo,useState} from "react";
 import {RefreshCw} from "lucide-react";
 import {AppShell} from "@/components/app-shell";
 import {CollectorHealth,SourceList,SourceItem} from "@/components/pages/source-list";
 import {EmptyState,Section} from "@/components/ui";
-import {CollectorRun,getCollectorStatus} from "@/lib/api";
+import {CollectorRun,KaitorixCsvStatus,getCollectorStatus,getKaitorixCsvStatus,SourceConnection} from "@/lib/api";
 import {dataLabel,environmentBadge,isProduction} from "@/lib/environment";
+
 const catalog:SourceItem[]=[
  {key:"mock",name:"Mock Collector",side:"販売・買取",method:"ローカルfixture",status:"ローカル専用",kind:"active",note:"本番環境では実行されません"},
  {key:"yahoo-discovery",name:"Yahoo!ショッピング",side:"販売",method:"公式API",status:"未取得",kind:"pending",note:"公式APIから動的に取得状況を確認します"},
@@ -17,7 +19,59 @@ const catalog:SourceItem[]=[
  {key:"amazon-discovery",name:"Amazon.co.jp",side:"販売",method:"Creators API",status:"未接続",kind:"pending",note:"公式APIのみ使用。Webページのスクレイピングは禁止"},
  {key:"apple",name:"Apple.com",side:"販売",method:"自動取得なし",status:"使用禁止",kind:"blocked",note:"規約に基づきスクレイピングしません"}
 ];
+
 const date=(x:string)=>new Date(x).toLocaleString("ja-JP");
-export default function Sources(){const[last,setLast]=useState<CollectorRun|null>(null),[runs,setRuns]=useState<CollectorRun[]>([]),[connections,setConnections]=useState<import("@/lib/api").SourceConnection[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState("");const load=useCallback(async()=>{setLoading(true);setError("");try{const x=await getCollectorStatus();setLast(x.lastRun);setRuns(Array.isArray(x.runs)?x.runs:[]);setConnections(Array.isArray(x.sources)?x.sources:[])}catch(e){setError(e instanceof Error?e.message:"Collector状態を取得できませんでした")}finally{setLoading(false)}},[]);useEffect(()=>{void load()},[load]);const sources=useMemo(()=>catalog.filter(x=>!isProduction||x.key!=="mock").map(item=>{const connection=connections.find(value=>value.source===item.key);if(!connection)return item;const lastSuccess=connection.lastSuccessAt?date(connection.lastSuccessAt):"取得待ち";return{...item,status:connection.status==="connected"?"接続済み":"設定済み",kind:connection.status==="connected"?"active":"ready",note:`${connection.itemCount.toLocaleString("ja-JP")}件 ・ 最終成功 ${lastSuccess}`}}),[connections]);return <AppShell title="データ取得元" description={`${dataLabel}の取得元と実稼働状況を表示します。`} badge={environmentBadge} actions={<button className="tool-button" onClick={()=>void load()} disabled={loading}><RefreshCw/>更新</button>}>
-{loading?<div className="collector-health"><div><span>最終実行</span><b>読み込み中</b></div></div>:error?<div className="notice error" role="alert">{error}<button onClick={()=>void load()}>再試行</button></div>:<CollectorHealth run={last}/>}<SourceList sources={sources}/>
-<Section title="Collector実行履歴" description="APIが記録した直近20件の実状態です。"><div className="run-list">{runs.map(x=><article key={`${x.id}-${x.runId}`}><span className={`status-dot ${x.status==="succeeded"?"active":x.status==="running"?"pending":"blocked"}`}/><div><b>{x.source}</b><small>{date(x.startedAt)} · {x.runId}</small></div><strong>{x.itemCount}件</strong><span>{x.message||x.status}</span></article>)}{!runs.length&&<EmptyState>Collectorの実行履歴はまだありません。</EmptyState>}</div></Section></AppShell>}
+const formatBytes=(value:number|undefined)=>value==null?"—":value<1024*1024?`${Math.round(value/1024)} KB`:`${(value/1024/1024).toFixed(1)} MB`;
+
+export default function Sources(){
+ const[last,setLast]=useState<CollectorRun|null>(null);
+ const[runs,setRuns]=useState<CollectorRun[]>([]);
+ const[connections,setConnections]=useState<SourceConnection[]>([]);
+ const[csvStatus,setCsvStatus]=useState<KaitorixCsvStatus|null>(null);
+ const[loading,setLoading]=useState(true);
+ const[error,setError]=useState("");
+ const[csvError,setCsvError]=useState("");
+
+ const load=useCallback(async()=>{
+  setLoading(true);setError("");setCsvError("");
+  const[collectorResult,csvResult]=await Promise.allSettled([getCollectorStatus(),getKaitorixCsvStatus()]);
+  if(collectorResult.status==="fulfilled"){
+   const x=collectorResult.value;
+   setLast(x.lastRun);setRuns(Array.isArray(x.runs)?x.runs:[]);setConnections(Array.isArray(x.sources)?x.sources:[]);
+  }else setError(collectorResult.reason instanceof Error?collectorResult.reason.message:"Collector状態を取得できませんでした");
+  if(csvResult.status==="fulfilled")setCsvStatus(csvResult.value);
+  else setCsvError(csvResult.reason instanceof Error?csvResult.reason.message:"CSV状態を取得できませんでした");
+  setLoading(false);
+ },[]);
+
+ useEffect(()=>{void load()},[load]);
+
+ const sources=useMemo(()=>catalog.filter(x=>!isProduction||x.key!=="mock").map(item=>{
+  const connection=connections.find(value=>value.source===item.key);
+  if(!connection)return item;
+  const lastSuccess=connection.lastSuccessAt?date(connection.lastSuccessAt):"取得待ち";
+  return{...item,status:connection.status==="connected"?"接続済み":"設定済み",kind:connection.status==="connected"?"active":"ready",note:`${connection.itemCount.toLocaleString("ja-JP")}件 ・ 最終成功 ${lastSuccess}`};
+ }),[connections]);
+
+ const progress=csvStatus?.progress;
+ const csvState=progress?.status??(csvStatus?.archivedToday?"archived":"waiting");
+ const totalCandidates=progress?.totalCandidates??0;
+ const importedCandidates=progress?.importedCandidates??0;
+ const progressPercent=totalCandidates>0?Math.min(100,Math.round(importedCandidates*100/totalCandidates)):csvState==="completed"?100:0;
+ const csvStateLabel=csvState==="completed"?"候補取り込み完了":csvState==="importing"?"取り込み中":csvState==="archived"?"CSV保存済み":"取得待ち";
+ const nextStep=csvState==="completed"?"販売APIを順番に探索中":csvState==="importing"?"候補をD1へ取り込み中":"次回のCSV取得を待機";
+
+ return <AppShell title="データ取得元" description={`${dataLabel}の取得元と実稼働状況を表示します。`} badge={environmentBadge} actions={<button className="tool-button" onClick={()=>void load()} disabled={loading}><RefreshCw/>更新</button>}>
+  {loading&&!last?<div className="collector-health"><div><span>最終実行</span><b>読み込み中</b></div></div>:error?<div className="notice error" role="alert">{error}<button onClick={()=>void load()}>再試行</button></div>:<CollectorHealth run={last}/>}<SourceList sources={sources}/>
+  <Section title="KaitoriX CSV・探索キュー" description="CSV原本はR2に保存し、候補だけをD1へ取り込みます。画面の更新時だけ状態を確認します。">
+   <div className="csv-sync-grid">
+    <div><span>CSV</span><b>{csvStatus?.archivedToday?"取得済み":"未取得"}</b><small>{csvStatus?.today??"—"} ・ {formatBytes(progress?.bytes)}</small></div>
+    <div><span>候補取り込み</span><b>{totalCandidates>0?`${importedCandidates.toLocaleString("ja-JP")} / ${totalCandidates.toLocaleString("ja-JP")}件`:csvState==="completed"?"0件":"待機中"}</b><small>{csvStateLabel}{progress?.rowsRead?` ・ ${progress.rowsRead.toLocaleString("ja-JP")}行読込`:""}</small></div>
+    <div><span>次の処理</span><b>{nextStep}</b><small>失敗しても途中から再開</small></div>
+   </div>
+   {totalCandidates>0&&<div className="csv-sync-progress" aria-label={`候補取り込み ${progressPercent}%`}><i style={{width:`${progressPercent}%`}}/></div>}
+   {csvError&&<div className="csv-sync-error" role="status">CSV状態を取得できませんでした。次の更新で再試行します。</div>}
+  </Section>
+  <Section title="Collector実行履歴" description="APIが記録した直近20件の実状態です。"><div className="run-list">{runs.map(x=><article key={`${x.id}-${x.runId}`}><span className={`status-dot ${x.status==="succeeded"?"active":x.status==="running"?"pending":"blocked"}`}/><div><b>{x.source}</b><small>{date(x.startedAt)} · {x.runId}</small></div><strong>{x.itemCount}件</strong><span>{x.message||x.status}</span></article>)}{!runs.length&&<EmptyState>Collectorの実行履歴はまだありません。</EmptyState>}</div></Section>
+ </AppShell>;
+}
