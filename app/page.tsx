@@ -28,7 +28,7 @@ export default function Home(){
   ["販売発見",data?.discoveryFunnel.yahooFound??0],
   ["購入可能",data?.discoveryFunnel.purchasable??0],
   ["利益あり",data?.discoveryFunnel.profitable??0],
-  ["¥5,000以上",data?.discoveryFunnel.threshold??0],
+  [`¥${(data?.discoveryFunnel.minimumProfit??5000).toLocaleString("ja-JP")}以上`,data?.discoveryFunnel.threshold??0],
   ["BUY",data?.discoveryFunnel.buys??0]
  ] as const;
  const watchlist=useMemo(()=>{
