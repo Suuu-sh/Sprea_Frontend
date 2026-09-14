@@ -81,7 +81,7 @@ export default function Sources(){
    <div className="csv-sync-grid">
     <div><span>状態</span><b>{queueStateLabel}</b><small>{queueStatus?`世代 ${queueStatus.generation} ・ ${queueStatus.providerCount} Provider`:"—"}</small></div>
     <div><span>探索対象</span><b>{queueStatus?`${queueStatus.candidates.toLocaleString("ja-JP")}件`:"—"}</b><small>{queueStatus?`${queueStatus.totalPairs.toLocaleString("ja-JP")} Providerペア` : "—"}</small></div>
-    <div><span>直近実行</span><b>{queueRun?`${queueRun.searched.toLocaleString("ja-JP")}ペア処理`:"まだ実行されていません"}</b><small>{queueRun?`${date(queueRun.startedAt)} ・ 失敗 ${queueRun.failures}件${queueDeferred?" ・ 次回へ繰越":""}` : "—"}</small></div>
+    <div><span>直近実行</span><b>{queueRun?`${queueRun.searchedPairs.toLocaleString("ja-JP")} Providerペア処理`:"まだ実行されていません"}</b><small>{queueRun?`${date(queueRun.startedAt)} ・ ${queueRun.searched.toLocaleString("ja-JP")}商品 ・ 失敗 ${queueRun.failures}件${queueDeferred?" ・ 次回へ繰越":""}` : "—"}</small></div>
    </div>
   </Section>
   <Section title="Collector実行履歴" description="APIが記録した直近20件の実状態です。"><div className="run-list">{runs.map(x=><article key={`${x.id}-${x.runId}`}><span className={`status-dot ${x.status==="succeeded"?"active":x.status==="running"?"pending":"blocked"}`}/><div><b>{x.source}</b><small>{date(x.startedAt)} · {x.runId}</small></div><strong>{x.itemCount}件</strong><span>{x.message||x.status}</span></article>)}{!runs.length&&<EmptyState>Collectorの実行履歴はまだありません。</EmptyState>}</div></Section>
