@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {ArrowLeft,BarChart3,Bell,CircleHelp,Database,FlaskConical,History,ListFilter,Menu,PackageSearch,Settings,TrendingUp,WalletCards,X} from "lucide-react";
+import {ArrowLeft,BarChart3,CircleHelp,Database,FlaskConical,History,ListFilter,Menu,PackageSearch,Settings,TrendingUp,WalletCards,X} from "lucide-react";
 import {usePathname,useRouter} from "next/navigation";
 import {ReactNode,useState} from "react";
 import {dataLabel,isProduction} from "@/lib/environment";
@@ -13,9 +13,13 @@ export function AppShell({children,capital=300000,title="案件リサーチ",des
  const item=(x:(typeof nav)[number])=>{const Icon=x.icon;const selected=x.href==="/"?pathname==="/":pathname.startsWith(x.href);return <Link aria-current={selected?"page":undefined} className={selected?"selected":""} href={x.href} key={x.href} onClick={()=>setMenuOpen(false)}><Icon/>{x.label}</Link>};
  const mobilePrimary=nav.slice(0,4);
  return <div className="app-layout">
+  <a className="skip-link" href="#main-content">本文へ移動</a>
   <aside className="sidebar"><div className="wordmark">Sprea<span>RESEARCH</span></div><nav className="side-nav" aria-label="メインナビゲーション">{nav.map(item)}</nav><div className="account-rate"><span>研究資金</span><strong>{yen}</strong><small>Allocation base</small></div><div className="help"><FlaskConical/>{dataLabel}専用</div></aside>
-  <header className="global-header">{pathname!=="/"&&<button className="mobile-back-button" aria-label="前の画面に戻る" onClick={()=>window.history.length>1?router.back():router.push("/")}><ArrowLeft/></button>}<div className="global-title"><b>{title}</b><span>{description}</span></div><div className="header-actions">{badge&&<span className={`header-badge${isProduction?"":" local"}`}>{badge}</span>}{actions}<button aria-label="通知"><Bell/></button></div></header>
-  <main className="workspace" data-route={pathname}>{children}</main>
+  <header className="global-header">{pathname!=="/"&&<button className="mobile-back-button" aria-label="前の画面に戻る" onClick={()=>window.history.length>1?router.back():router.push("/")}><ArrowLeft/></button>}<div className="global-title"><b>Sprea Research</b><span>価格を調べる・候補を比べる・結果を確かめる</span></div><div className="header-actions">{badge&&<span className={`header-badge${isProduction?"":" local"}`}>{badge}</span>}{actions}<Link className="tool-button header-help" href="/guide" aria-label="使い方を開く"><CircleHelp/><span>使い方</span></Link></div></header>
+  <main id="main-content" tabIndex={-1} className="workspace" data-route={pathname}>
+   <section className="page-intro"><div><span className="page-eyebrow">SPREA / RESEARCH WORKSPACE</span><h1>{title}</h1>{description&&<p>{description}</p>}</div><span className="research-note"><FlaskConical aria-hidden="true"/>実注文・決済は行いません</span></section>
+   {children}
+  </main>
   <nav className="mobile-nav" aria-label="モバイルナビゲーション">{mobilePrimary.map(item)}<button className={menuOpen?"selected":""} aria-expanded={menuOpen} aria-controls="mobile-menu" onClick={()=>setMenuOpen(open=>!open)}><Menu/>その他</button></nav>
   {menuOpen&&<div className="mobile-sheet-backdrop" onClick={()=>setMenuOpen(false)}><section id="mobile-menu" className="mobile-sheet" role="dialog" aria-modal="true" aria-label="すべてのページ" onClick={event=>event.stopPropagation()}><header><div><small>SPREA NAVIGATION</small><b>すべてのページ</b></div><button aria-label="メニューを閉じる" onClick={()=>setMenuOpen(false)}><X/></button></header><nav>{nav.map(item)}</nav><footer><span>研究資金</span><b>{yen}</b><small>{dataLabel}</small></footer></section></div>}
  </div>;

@@ -50,9 +50,9 @@ export type ResearchAnalytics = {
 const API = (process.env.NODE_ENV === "production" ? "https://sprea-research.suuu-sh.workers.dev" : process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8788").replace(/\/$/, "");
 export class ApiError extends Error { constructor(message: string, public readonly status?: number) { super(message); this.name = "ApiError"; } }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function request<T>(path: string, init?: RequestInit, timeoutMs = 12_000): Promise<T> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 12_000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const headers = new Headers(init?.headers);
     const response = await fetch(`${API}${path}`, { cache: "no-store", ...init, headers, signal: controller.signal });
@@ -84,5 +84,8 @@ export const runEvaluator = () => request<EvaluatorRun>("/api/research/evaluator
 export const getCollectorStatus = () => request<CollectorStatus>("/api/collector/status?limit=20");
 export const getKaitorixCsvStatus = () => request<KaitorixCsvStatus>("/api/kaitorix/csv/status");
 export const getDiscoveryTargets = (page = 1, pageSize = 100) => request<DiscoveryTargetsResponse>(`/api/research/discovery-candidates?limit=${pageSize}&page=${page}`);
-export const runDiscoveryNow = () => request<DiscoveryRunResult>("/api/research/discovery/run", mutation("POST"));
+// A manual discovery run waits for the bounded backend job to finish so the
+// UI can refresh only after the queue/result writes are complete.  Scheduled
+// runs remain independent of this button.
+export const runDiscoveryNow = () => request<DiscoveryRunResult>("/api/research/discovery/run", mutation("POST"), 5 * 60_000);
 export const getResearchAnalytics = () => request<ResearchAnalytics>("/api/research/analytics");
