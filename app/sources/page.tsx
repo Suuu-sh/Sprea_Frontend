@@ -70,7 +70,7 @@ export default function Sources(){
  const queueProviders=queueStatus?.providers??[];
  const providerLabel=(provider:string)=>provider==="yahoo"?"Yahoo!ショッピング":provider==="rakuten"?"楽天市場":provider==="amazon"?"Amazon":"販売API";
  const queueBatchNote=queueDeferred&&queueRun?.deferredPairs!=null?`${queueRun.deferredPairs.toLocaleString("ja-JP")}件を次回へ繰越`:queueRun?"今回のバッチ完了":"—";
- const queueFootnote=queueRun?`最終実行 ${date(queueRun.startedAt)}${queueDeferred?" ・ 未処理分は次回へ繰越":" ・ 次回の実行で続きから再開"}`:"キュー状態を取得中です";
+ const queueFootnote=queueRun?`最終実行 ${date(queueRun.startedAt)}${queueDeferred?" ・ 未処理分は次回へ繰越":" ・ 次回の実行で続きから再開"}${queueRun.failures&&queueRun.message?` ・ ${queueRun.message}`:""}`:"キュー状態を取得中です";
 
  return <AppShell title="データ取得元" description={`${dataLabel}の取得元と実稼働状況を表示します。`} badge={environmentBadge} actions={<button className="tool-button" onClick={()=>void load()} disabled={loading}><RefreshCw/>更新</button>}>
   {loading&&!last?<div className="collector-health"><div><span>最終実行</span><b>読み込み中</b></div></div>:error?<div className="notice error" role="alert">{error}<button onClick={()=>void load()}>再試行</button></div>:<CollectorHealth run={last}/>}<SourceList sources={sources}/>
