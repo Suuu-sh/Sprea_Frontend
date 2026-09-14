@@ -33,9 +33,10 @@ export default function Sources(){
  const[loading,setLoading]=useState(true);
  const[error,setError]=useState("");
  const[csvError,setCsvError]=useState("");
+ const[queueError,setQueueError]=useState("");
 
  const load=useCallback(async()=>{
-  setLoading(true);setError("");setCsvError("");
+  setLoading(true);setError("");setCsvError("");setQueueError("");
   const[collectorResult,csvResult,queueResult]=await Promise.allSettled([getCollectorStatus(),getKaitorixCsvStatus(),getDiscoveryQueueStatus()]);
   if(collectorResult.status==="fulfilled"){
    const x=collectorResult.value;
@@ -43,7 +44,8 @@ export default function Sources(){
   }else setError(collectorResult.reason instanceof Error?collectorResult.reason.message:"Collector状態を取得できませんでした");
   if(csvResult.status==="fulfilled")setCsvStatus(csvResult.value);
   else setCsvError(csvResult.reason instanceof Error?csvResult.reason.message:"CSV状態を取得できませんでした");
-  if(queueResult.status==="fulfilled")setQueueStatus(queueResult.value);
+  if(queueResult.status==="fulfilled"){setQueueStatus(queueResult.value);setQueueError("");}
+  else setQueueError(queueResult.reason instanceof Error?queueResult.reason.message:"探索キューの状態を取得できませんでした");
   setLoading(false);
  },[]);
 
@@ -86,7 +88,8 @@ export default function Sources(){
    {totalCandidates>0&&<div className="csv-sync-progress" aria-label={`候補取り込み ${progressPercent}%`}><i style={{width:`${progressPercent}%`}}/></div>}
    {csvError&&<div className="csv-sync-error" role="status">CSV状態を取得できませんでした。次の更新で再試行します。</div>}
   </Section>
-   <Section title="販売API探索キュー" description="候補を少量ずつ販売APIへ送り、結果が確認できた商品だけを次の画面へ進めます。" actions={<span className={`queue-state-badge ${queueStateTone}`}><i aria-hidden="true"/>{queueDisplayLabel}</span>}>
+  <Section title="販売API探索キュー" description="候補を少量ずつ販売APIへ送り、結果が確認できた商品だけを次の画面へ進めます。" actions={<span className={`queue-state-badge ${queueStateTone}`}><i aria-hidden="true"/>{queueDisplayLabel}</span>}>
+   {queueError&&<div className="notice error queue-error" role="alert"><span>{queueError}</span><button onClick={()=>void load()}>再試行</button></div>}
    <div className={`queue-overview queue-${queueStateTone}`}>
     <div className="queue-overview-head">
      <div className="queue-state-copy"><span className="queue-state-orb" aria-hidden="true"><Activity/></span><div><strong>{queueStateDetail}</strong><small>{queueStatus?`世代 ${queueStatus.generation} ・ ${queueStatus.providerCount} Provider稼働`:`状態を読み込んでいます`}</small></div></div>
