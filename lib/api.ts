@@ -48,7 +48,7 @@ export type DiscoveryQueueStatus = {
   totalPairs: number;
   rebuiltAt: string | null;
   lastRun: { id: number; trigger: string; status: string; searched: number; searchedPairs: number; batchPairs: number | null; deferredPairs: number | null; purchasable: number; profitable: number; threshold: number; buys: number; failures: number; message: string; startedAt: string; finishedAt: string | null } | null;
-  providers: Array<{ provider: string; searched: number; found: number; listings: number; profitable: number; threshold: number; failures: number }>;
+  providers: Array<{ provider: string; searched: number; found: number; listings: number; profitable: number; threshold: number; failures: number; lastError?: string }>;
 };
 export type ResearchAnalytics = {
   evaluationCoverage: Array<{ horizon: number; total: number; completed: number; pendingData: number }>;
