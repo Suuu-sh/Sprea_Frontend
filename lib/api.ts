@@ -37,6 +37,19 @@ export type StabilityWindow = { days: number; samples: number; average: number |
 export type DiscoveryTarget = { id: number; canonicalProductId: number | null; productName: string; jan: string | null; modelNumber: string | null; brand: string | null; category: string | null; condition: string; attributes: Record<string, unknown>; bestBuybackPrice: number; bestBuybackProvider: string; buybackProviderCount: number; resolverStatus: string; resolverConfidence: number; resolverReason: string; identityStatus: "jan_exact"|"model_exact"|"insufficient"; searchQuery: string; targetPurchasePrice: number; discoveryCeiling: number; yahoo: DiscoveryProviderState; rakuten: DiscoveryProviderState; amazon: DiscoveryProviderState; retailResultCount: number; retailProviderCount: number; lowestRetailPrice: number | null; estimatedProfit: number | null; profitGap: number | null; latestResultAt: string | null; stability: { windows: StabilityWindow[]; leaderDependence: number | null; historyDays: number; status: "measured"|"accumulating" }; recommendationScore: number };
 export type DiscoveryTargetsResponse = { total: number; page: number; pageSize: number; hasNext: boolean; providers: string[]; items: DiscoveryTarget[] };
 export type DiscoveryRunResult = { runId: number; searched: number; retailFound: number; purchasable: number; profitable: number; threshold: number; failures: number };
+export type DiscoveryQueueStatus = {
+  state: "running" | "rebuild_pending" | "failed" | "idle";
+  generation: number;
+  dirty: boolean;
+  candidates: number;
+  quotes: number;
+  canonicalProducts: number;
+  providerCount: number;
+  totalPairs: number;
+  rebuiltAt: string | null;
+  lastRun: { id: number; trigger: string; status: string; searched: number; purchasable: number; profitable: number; threshold: number; buys: number; failures: number; message: string; startedAt: string; finishedAt: string | null } | null;
+  providers: Array<{ provider: string; searched: number; found: number; listings: number; profitable: number; threshold: number; failures: number }>;
+};
 export type ResearchAnalytics = {
   evaluationCoverage: Array<{ horizon: number; total: number; completed: number; pendingData: number }>;
   scoreSuccess: Array<{ bucket: string; evaluated: number; successRate: number }>;
@@ -83,6 +96,7 @@ export const getEvaluatorStatus = () => request<{ schedules: EvaluationSchedule[
 export const runEvaluator = () => request<EvaluatorRun>("/api/research/evaluator/run", mutation("POST"));
 export const getCollectorStatus = () => request<CollectorStatus>("/api/collector/status?limit=20");
 export const getKaitorixCsvStatus = () => request<KaitorixCsvStatus>("/api/kaitorix/csv/status");
+export const getDiscoveryQueueStatus = () => request<DiscoveryQueueStatus>("/api/research/queue-status");
 export const getDiscoveryTargets = (page = 1, pageSize = 100) => request<DiscoveryTargetsResponse>(`/api/research/discovery-candidates?limit=${pageSize}&page=${page}`);
 // A manual discovery run waits for the bounded backend job to finish so the
 // UI can refresh only after the queue/result writes are complete.  Scheduled
